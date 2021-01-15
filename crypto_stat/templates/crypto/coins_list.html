@@ -1,0 +1,54 @@
+{% extends 'info/base.html' %}
+{% block head %}
+{% load static %}
+<link rel="stylesheet" href="{% static 'css/crypto_pages.css' %}">
+{% endblock %}
+{% block title %}
+Coins list
+{% endblock %}
+
+{% block body %}
+<div id="accordion">
+    {% for coin in coins %}
+    <div class="card">
+        <div class="card-header" id="headingOne">
+            <h5 class="mb-0">
+                <button class="btn btn-link" data-toggle="collapse" data-target="#collapse-{{ forloop.counter }}"
+                        aria-expanded="true"
+                        aria-controls="collapseOne">
+                    {{ coin.name }}
+                </button>
+            </h5>
+        </div>
+        <div id="collapse-{{ forloop.counter }}" class="collapse" aria-labelledby="headingOne" data-parent="#accordion">
+            <div class="card-body">
+                <div class="tableFixHead">
+                    <table class="table table-sm">
+                        <thead>
+                        <tr>
+                            <th>Type</th>
+                            <th>Count</th>
+                            <th>Total</th>
+                            <th>Time</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for deal in deals %}
+                        {% if deal.coin.name == coin.name %}
+                        <tr class="table-{% if deal.type == 'SELL' %}danger{% else %}success{% endif %}">
+                            <td>{{deal.type}}</td>
+                            <td>{{deal.count}}</td>
+                            <td>{{deal.total}}</td>
+                            <td>{{deal.date_time|date:"H:m d/m/Y"}}</td>
+                        </tr>
+                        {% endif %}
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}
