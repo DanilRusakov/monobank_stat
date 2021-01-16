@@ -28,6 +28,7 @@ Coins list
                         <tr>
                             <th>Type</th>
                             <th>Count</th>
+                            <th>Course</th>
                             <th>Total</th>
                             <th>Time</th>
                         </tr>
@@ -38,7 +39,8 @@ Coins list
                         <tr class="table-{% if deal.type == 'SELL' %}danger{% else %}success{% endif %}">
                             <td>{{deal.type}}</td>
                             <td>{{deal.count}}</td>
-                            <td>{{deal.total}}</td>
+                            <td>{{deal.coin_course}}$</td>
+                            <td>{{deal.total}}$</td>
                             <td>{{deal.date_time|date:"H:m d/m/Y"}}</td>
                         </tr>
                         {% endif %}

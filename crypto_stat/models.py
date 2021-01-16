@@ -11,6 +11,19 @@ class Coin(models.Model):
     name = models.CharField(unique=True, max_length=10)
     cost = models.FloatField()  # approximately in dollars
 
+    @property
+    def total_count(self):
+        total_spend = 0
+        count_coin = 0
+        for deal in self.coin_deal.all():
+            if deal.type == "BUY":
+                total_spend += deal.total
+                count_coin += deal.count
+            else:
+                total_spend -= deal.total
+                count_coin -= deal.count
+        return total_spend/count_coin
+
     def __str__(self):
         return f'{self.name} ~{self.cost}$'
 
@@ -30,7 +43,6 @@ class CoinAveragePrice(models.Model):
     # TODO: on save change only updated_at
     # TODO: fix added_by
     # TODO: add calculation spend sum
-
 
 
 class Deal(models.Model):
@@ -55,22 +67,48 @@ class Deal(models.Model):
         return self.coin.name
 
     def update_coin_average(self):
-        coin_average = CoinAveragePrice.objects.filter(coin=self.coin)
-        if coin_average.count():
-            CoinAveragePrice.objects.update(average_price=self.coin_course)
+        coin_average_record = CoinAveragePrice.objects.filter(coin=self.coin)
+        new_coin_average = self.calculate_coin_average_by_deals()
+        if coin_average_record.count():
+            coin_average_record.update(average_price=self.coin_course)
         else:
             CoinAveragePrice.objects.create(coin=self.coin, average_price=self.coin_course)
 
+    def calculate_coin_average_by_deals(self):
+        all_coin_deals = Deal.objects.filter(coin=self.coin)
+        spend_sum = 0
+        buy_coin_count = 0
+        sell_coin_count = 0
+        withdrawn_sum = 0
+        for deal in all_coin_deals:
+            if deal.type == 'BUY':
+                spend_sum += deal.total
+                buy_coin_count += deal.count
+            else:
+                withdrawn_sum -= deal.total
+                sell_coin_count += deal.count
+        # current_count=buy_coin_count-sell_coin_count
+        average_price = spend_sum-withdrawn_sum
+        result = {
+            'spend_sum': spend_sum,
+            # 'current_count': current_count,
+            'average_price': 0,
+            'withdrawn_sum': withdrawn_sum
+        }
+
+        return result
 
     def save(self, *args, **kwargs):
+        # TODO: sell deals save with minus
+        # TODO: check if sell more then buy
         if self.coin_course > 0:
             self.total = self.count * self.coin_course
         else:
             self.total = self.count * self.coin.cost
             self.coin_course = self.coin.cost
         self.update_coin_average()
-        super(Deal, self).save(*args, **kwargs)
+        super().save(*args, **kwargs)
 
     def __str__(self):
         # TODO: change self.coin on actual coin name +actual course
-        return f'{self.type} {self.coin.name}'
+        return f'{self.type} <b>{self.coin.name}</b> at the rate {self.coin_course}$ '
