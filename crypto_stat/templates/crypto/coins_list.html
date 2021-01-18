@@ -8,22 +8,29 @@ Coins list
 {% endblock %}
 
 {% block body %}
-<div id="accordion">
+<div id="accordion" class="coins-list">
     {% for coin in coins %}
     <div class="card">
-        <div class="card-header" id="headingOne">
-            <h5 class="mb-0">
-                <button class="btn btn-link" data-toggle="collapse" data-target="#collapse-{{ forloop.counter }}"
-                        aria-expanded="true"
-                        aria-controls="collapseOne">
-                    {{ coin.name }}
-                </button>
-            </h5>
+        <div class="card-header" data-toggle="collapse" data-target="#collapse-{{ forloop.counter }}"
+             aria-expanded="true" style="cursor:pointer;">
+            <div class="panel-title d-flex justify-content-between">
+                <h5 class="mb-0">{{ coin.name }}</h5>
+                <div>
+                    Avg price:
+                    <span class="badge badge-pill badge-primary">{{coin.average_entry_point|floatformat:3 }}$</span>
+                    Spend:
+                    <span class="badge badge-pill badge-info">{{coin.total_bought.sum }} $</span>
+                    Withdrawn:
+                    <span class="badge badge-pill badge-success">{{coin.total_withdrawn.sum }} $</span>
+                </div>
+            </div>
+
+
         </div>
         <div id="collapse-{{ forloop.counter }}" class="collapse" aria-labelledby="headingOne" data-parent="#accordion">
             <div class="card-body">
                 <div class="tableFixHead">
-                    <table class="table table-sm">
+                    <table class="table table-sm table-dark">
                         <thead>
                         <tr>
                             <th>Type</th>
@@ -36,7 +43,7 @@ Coins list
                         <tbody>
                         {% for deal in deals %}
                         {% if deal.coin.name == coin.name %}
-                        <tr class="table-{% if deal.type == 'SELL' %}danger{% else %}success{% endif %}">
+                        <tr class="bg-{% if deal.type == 'SELL' %}danger{% else %}success{% endif %}">
                             <td>{{deal.type}}</td>
                             <td>{{deal.count}}</td>
                             <td>{{deal.coin_course}}$</td>

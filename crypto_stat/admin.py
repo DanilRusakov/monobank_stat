@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Coin, Deal, CoinAveragePrice
+from .models import Coin, Deal
 
 
 @admin.register(Coin)
@@ -18,8 +18,3 @@ class DealAdmin(admin.ModelAdmin):
     def deal_time(self, obj):
         return obj.date_time.strftime("%H:%M:%S %d/%m/%Y")
 
-
-@admin.register(CoinAveragePrice)
-class CoinAveragePriceAdmin(admin.ModelAdmin):
-    list_display = ('coin', 'average_price', 'added_by')
-    exclude = ['added_by', ]

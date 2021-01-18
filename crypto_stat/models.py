@@ -12,7 +12,7 @@ class Coin(models.Model):
     cost = models.FloatField()  # approximately in dollars
 
     @property
-    def total_count(self):
+    def average_entry_point(self):
         total_spend = 0
         count_coin = 0
         for deal in self.coin_deal.all():
@@ -20,29 +20,20 @@ class Coin(models.Model):
                 total_spend += deal.total
                 count_coin += deal.count
             else:
-                total_spend -= deal.total
+                total_spend -= deal.count * (total_spend / count_coin)
                 count_coin -= deal.count
-        return total_spend/count_coin
+        return total_spend / count_coin
+
+    @property
+    def total_bought(self):
+        return self.coin_deal.filter(type="BUY").aggregate(sum=models.Sum('total'))
+
+    @property
+    def total_withdrawn(self):
+        return self.coin_deal.filter(type="SELL").aggregate(sum=models.Sum('total'))
 
     def __str__(self):
         return f'{self.name} ~{self.cost}$'
-
-
-class CoinAveragePrice(models.Model):
-    class Meta:
-        verbose_name = 'Coin Average Price'
-        verbose_name_plural = 'Coins Average Price'
-
-    coin = models.ForeignKey(Coin, on_delete=models.CASCADE, related_name='coin_average_price')
-    average_price = models.FloatField()
-    spend_sum = models.FloatField(default=0.0)
-    coin_profit = models.FloatField(default=0.0)
-    added_by = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL)
-    created_at = models.DateTimeField(default=now, blank=True)
-    updated_at = models.DateTimeField(default=now, blank=True)
-    # TODO: on save change only updated_at
-    # TODO: fix added_by
-    # TODO: add calculation spend sum
 
 
 class Deal(models.Model):
@@ -57,6 +48,7 @@ class Deal(models.Model):
 
     type = models.CharField(choices=DEAL_TYPES, max_length=4, default='BUY')
     coin = models.ForeignKey(Coin, on_delete=models.CASCADE, related_name='coin_deal')
+    added_by = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL)
     coin_course = models.FloatField(default=0)
     count = models.FloatField()
     total = models.FloatField()
@@ -66,38 +58,6 @@ class Deal(models.Model):
     def coin_name(self):
         return self.coin.name
 
-    def update_coin_average(self):
-        coin_average_record = CoinAveragePrice.objects.filter(coin=self.coin)
-        new_coin_average = self.calculate_coin_average_by_deals()
-        if coin_average_record.count():
-            coin_average_record.update(average_price=self.coin_course)
-        else:
-            CoinAveragePrice.objects.create(coin=self.coin, average_price=self.coin_course)
-
-    def calculate_coin_average_by_deals(self):
-        all_coin_deals = Deal.objects.filter(coin=self.coin)
-        spend_sum = 0
-        buy_coin_count = 0
-        sell_coin_count = 0
-        withdrawn_sum = 0
-        for deal in all_coin_deals:
-            if deal.type == 'BUY':
-                spend_sum += deal.total
-                buy_coin_count += deal.count
-            else:
-                withdrawn_sum -= deal.total
-                sell_coin_count += deal.count
-        # current_count=buy_coin_count-sell_coin_count
-        average_price = spend_sum-withdrawn_sum
-        result = {
-            'spend_sum': spend_sum,
-            # 'current_count': current_count,
-            'average_price': 0,
-            'withdrawn_sum': withdrawn_sum
-        }
-
-        return result
-
     def save(self, *args, **kwargs):
         # TODO: sell deals save with minus
         # TODO: check if sell more then buy
@@ -106,7 +66,6 @@ class Deal(models.Model):
         else:
             self.total = self.count * self.coin.cost
             self.coin_course = self.coin.cost
-        self.update_coin_average()
         super().save(*args, **kwargs)
 
     def __str__(self):
