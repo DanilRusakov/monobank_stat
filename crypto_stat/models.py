@@ -26,11 +26,39 @@ class Coin(models.Model):
 
     @property
     def total_bought(self):
-        return self.coin_deal.filter(type="BUY").aggregate(sum=models.Sum('total'))
+        total_bought = self.coin_deal.filter(type="BUY").aggregate(sum=models.Sum('total'))
+        return total_bought['sum']
 
     @property
     def total_withdrawn(self):
-        return self.coin_deal.filter(type="SELL").aggregate(sum=models.Sum('total'))
+        total_withdrawn = self.coin_deal.filter(type="SELL").aggregate(sum=models.Sum('total'))
+        return total_withdrawn['sum']
+
+    @property
+    def total_bought_coin(self):
+        total_bought_coin = self.coin_deal.filter(type="BUY").aggregate(sum=models.Sum('count'))
+        return total_bought_coin['sum']
+
+    @property
+    def total_sell_coin(self):
+        total_sell_coin = self.coin_deal.filter(type="SELL").aggregate(sum=models.Sum('count'))
+        return total_sell_coin['sum']
+
+    @property
+    def total_coin_count(self):
+        if self.total_sell_coin:
+            total_coin_count = self.total_bought_coin-self.total_sell_coin
+        else:
+            total_coin_count = self.total_bought_coin
+        return total_coin_count
+
+    @property
+    def profit(self):
+        if self.total_withdrawn:
+            spend_amount = self.total_bought - self.total_withdrawn
+        else:
+            spend_amount = self.total_bought
+        return self.total_coin_count*self.cost-spend_amount
 
     def __str__(self):
         return f'{self.name} ~{self.cost}$'
@@ -59,7 +87,7 @@ class Deal(models.Model):
         return self.coin.name
 
     def save(self, *args, **kwargs):
-        # TODO: sell deals save with minus
+        # TODO: think about sell deals save with minus
         # TODO: check if sell more then buy
         if self.coin_course > 0:
             self.total = self.count * self.coin_course
@@ -69,5 +97,4 @@ class Deal(models.Model):
         super().save(*args, **kwargs)
 
     def __str__(self):
-        # TODO: change self.coin on actual coin name +actual course
-        return f'{self.type} <b>{self.coin.name}</b> at the rate {self.coin_course}$ '
+        return f'{self.type} {self.coin.name} at the rate {self.coin_course}$ '

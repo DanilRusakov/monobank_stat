@@ -11,9 +11,10 @@ class CoinAdmin(admin.ModelAdmin):
 class DealAdmin(admin.ModelAdmin):
     list_display = ('type', 'coin_name', 'count', 'coin_course', 'price', 'deal_time')
     readonly_fields = ('total',)
+    list_filter = ('type', 'coin')
 
     def price(self, obj):
-        return f'{obj.total}$'
+        return '%.2f $' % obj.total
 
     def deal_time(self, obj):
         return obj.date_time.strftime("%H:%M:%S %d/%m/%Y")

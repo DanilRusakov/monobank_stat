@@ -7,7 +7,8 @@ body {
 }
 .tableFixHead{
     overflow-y: auto;
-    height: 200px;
+    max-height: 500px;
+    height:100%;
 }
 .tableFixHead thead th {
     position: sticky;

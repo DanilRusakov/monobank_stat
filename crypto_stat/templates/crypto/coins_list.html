@@ -14,14 +14,19 @@ Coins list
         <div class="card-header" data-toggle="collapse" data-target="#collapse-{{ forloop.counter }}"
              aria-expanded="true" style="cursor:pointer;">
             <div class="panel-title d-flex justify-content-between">
-                <h5 class="mb-0">{{ coin.name }}</h5>
+                <h5 class="mb-0">{{ coin.name }} ~{{coin.cost|floatformat:2}}$</h5>
                 <div>
+                    {% if coin.total_withdrawn %}
+                    Withdrawn:
+                    <span class="badge badge-pill badge-success">{{coin.total_withdrawn|floatformat:3 }} $</span>
+                    {% endif %}
                     Avg price:
                     <span class="badge badge-pill badge-primary">{{coin.average_entry_point|floatformat:3 }}$</span>
-                    Spend:
-                    <span class="badge badge-pill badge-info">{{coin.total_bought.sum }} $</span>
-                    Withdrawn:
-                    <span class="badge badge-pill badge-success">{{coin.total_withdrawn.sum }} $</span>
+                    Profit:
+
+                    <span class="badge badge-pill badge-{% if coin.profit < 0 %}danger{%else%}success{%endif%}">
+                        {{coin.profit|floatformat:3 }} $
+                    </span>
                 </div>
             </div>
 
@@ -45,14 +50,26 @@ Coins list
                         {% if deal.coin.name == coin.name %}
                         <tr class="bg-{% if deal.type == 'SELL' %}danger{% else %}success{% endif %}">
                             <td>{{deal.type}}</td>
-                            <td>{{deal.count}}</td>
-                            <td>{{deal.coin_course}}$</td>
-                            <td>{{deal.total}}$</td>
+                            <td>{{deal.count|floatformat:3}}</td>
+                            <td>{{deal.coin_course|floatformat:3}}$</td>
+                            <td>{{deal.total|floatformat:3}}$</td>
                             <td>{{deal.date_time|date:"H:m d/m/Y"}}</td>
                         </tr>
                         {% endif %}
                         {% endfor %}
                         </tbody>
+                        <thead>
+                            <th>Totals:</th>
+                            <th>{{coin.total_coin_count|floatformat:2}}</th>
+                            <th>{{coin.average_entry_point|floatformat:3 }} $</th>
+                            <th>
+                                <i>Bough: </i>{{coin.total_bought|floatformat:2}} $
+                                {% if coin.total_withdrawn %}
+                                <br><i>Withdrawn: </i>{{coin.total_withdrawn|floatformat:2 }} $
+                                {% endif %}
+                            </th>
+                            <th>---</th>
+                        </thead>
                     </table>
                 </div>
             </div>
