@@ -77,10 +77,17 @@ TEMPLATES = [
     },
 ]
 
+SOCIAL_AUTH_GITHUB_KEY = '643384e575868cdcf6f0'
+SOCIAL_AUTH_GITHUB_SECRET = 'e82e1fa584c356b4c0382bdd0cdc6ab3ad80875e'
+
+SOCIAL_AUTH_LOGIN_ERROR_URL = '/settings/'
+SOCIAL_AUTH_LOGIN_REDIRECT_URL = '/settings/'
+SOCIAL_AUTH_RAISE_EXCEPTIONS = False
+
+
 AUTHENTICATION_BACKENDS = (
-    'social_core.backends.facebook.FacebookOAuth2',
-    # 'social_core.backends.twitter.TwitterOAuth',
-    # 'social_core.backends.github.GithubOAuth2',
+    # 'social_core.backends.facebook.FacebookOAuth2',
+    'social_core.backends.github.GithubOAuth2',
 
     'django.contrib.auth.backends.ModelBackend',
 )
