@@ -1,5 +1,4 @@
 from datetime import datetime, timedelta
-from pprint import pprint
 
 from celery import shared_task
 from django.contrib.auth.models import User
@@ -18,21 +17,22 @@ def parse_statements():
      if r.status_code == 200:
           data = r.json()
           for row in data:
+               print()
                MonoPersonalStatement.objects.update_or_create(
-                    mono_user=mono_user,
                     transaction_id=row['id'],
-                    time=row['time'],
-                    description=row['description'],
-                    amount=row['amount'],
-                    operation_amount=row['operationAmount'],
-                    currency_code=row['currencyCode'],
-                    commission_rate=row['commissionRate'],
-                    cashback_amount=row['cashbackAmount'],
-                    balance=row['balance'],
-                    # receipt_id=row.get('receiptId', None),
+                    mono_user=mono_user,
+                    defaults={
+                         'time': row['time'],
+                         'datetime': datetime.fromtimestamp(row['time']),
+                         'description': row['description'],
+                         'amount': row['amount'],
+                         'operation_amount': row['operationAmount'],
+                         'currency_code': row['currencyCode'],
+                         'commission_rate': row['commissionRate'],
+                         'cashback_amount': row['cashbackAmount'],
+                         'balance': row['balance'],
+                         'receipt_id': row.get('receiptId', '')
+                    }
                )
-          return data
      else:
-          pprint(r.json()['errorDescription'])
-          pprint(timedelta_from)
-     return False
+          print(r.json()['errorDescription'])
