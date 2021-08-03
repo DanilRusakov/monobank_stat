@@ -24,10 +24,10 @@ class TransactionTypeFilter(SimpleListFilter):
 
 
 class MonoPersonalStatementAdmin(admin.ModelAdmin):
-    list_display = ('description', 'amount_value', 'cashback_value', 'transaction_date')
+    list_display = ('description', 'amount_value', 'cashback_value', 'datetime')
     list_filter = (TransactionTypeFilter, )
-    ordering = ['-time']
-    admin_order_field = ('amount', 'cashback_amount')
+    ordering = ['-datetime']
+    admin_order_field = ('amount', 'cashback_amount', 'datetime')
 
     def cashback_value(self, obj):
         if obj.cashback_amount:
@@ -41,11 +41,6 @@ class MonoPersonalStatementAdmin(admin.ModelAdmin):
         return obj.amount/100
     amount_value.short_description = 'Value'
     amount_value.admin_order_field = 'amount'
-
-    def transaction_date(self, obj):
-        return datetime.utcfromtimestamp(obj.time).strftime('%H:%M:%S %d-%m-%Y')
-    transaction_date.short_description = 'Date'
-    transaction_date.admin_order_field = 'time'
 
 
 admin.site.register(MonoUser, MonoUserAdmin)

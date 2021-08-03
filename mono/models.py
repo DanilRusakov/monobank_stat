@@ -12,6 +12,7 @@ class MonoPersonalStatement(models.Model):
     mono_user = models.ForeignKey(MonoUser, on_delete=models.CASCADE)
     transaction_id = models.CharField(verbose_name='Transaction id', max_length=16, unique=True)
     time = models.PositiveIntegerField()
+    datetime = models.DateTimeField()
     description = models.CharField(max_length=255, blank=True)
     amount = models.IntegerField()
     operation_amount = models.IntegerField()
