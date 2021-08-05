@@ -13,5 +13,6 @@ urlpatterns = [
 
     path('admin/', admin.site.urls),
     path('coins/', include('crypto_stat.urls')),
+    path('mono/', include('mono.urls')),
     path('oauth/', include('social_django.urls', namespace='social'))
 ]

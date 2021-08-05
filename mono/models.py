@@ -21,6 +21,7 @@ class MonoPersonalStatement(models.Model):
     cashback_amount = models.IntegerField()
     balance = models.IntegerField()
     receipt_id = models.CharField(max_length=19, blank=True)
+    hide_from_stat = models.BooleanField(default=False)
 
     class Meta:
         verbose_name = 'Transaction'

@@ -17,7 +17,6 @@ def parse_statements():
      if r.status_code == 200:
           data = r.json()
           for row in data:
-               print()
                MonoPersonalStatement.objects.update_or_create(
                     transaction_id=row['id'],
                     mono_user=mono_user,

@@ -1,0 +1,122 @@
+{% extends 'info/base.html' %}
+{% block head %}
+    {% load static %}
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{% endblock %}
+{% block title %}
+Spending stat
+{% endblock %}
+
+{% block body %}
+    <div>
+        <canvas id="spent_dates"></canvas>
+    </div>
+    <div>
+        <canvas id="biggest_spending"></canvas>
+    </div>
+
+    <script>
+        var spent = {{ spent|safe }};
+        const data = {
+            labels: spent.map(function (item) {
+                return item.date
+            }),
+            datasets: [{
+                label: 'Spent',
+                backgroundColor: 'rgb(255, 99, 132)',
+                borderColor: 'rgb(255, 99, 132)',
+                data: spent.map(function (item) {
+                    return (item.total_sum / 100) * -1
+                }),
+                pointBorderWidth: 0,
+                pointHoverRadius: 8,
+                cubicInterpolationMode: 'monotone',
+                {#pointHoverBackgroundColor: gradientStroke,#}
+                pointHoverBorderColor: "rgba(220,220,220,1)",
+                pointHoverBorderWidth: 4,
+                pointRadius: 1,
+                borderWidth: 5,
+                pointHitRadius: 16,
+            },
+                {
+                    label: 'Cashback',
+                    backgroundColor: 'rgb(99,182,255)',
+                    borderColor: 'rgb(99,182,255)',
+                    data: spent.map(function (item) {
+                        return (item.total_cashback / 100)
+                    }),
+                    pointBorderWidth: 0,
+                    pointHoverRadius: 8,
+                    cubicInterpolationMode: 'monotone',
+                    {#pointHoverBackgroundColor: gradientStroke,#}
+                    pointHoverBorderColor: "rgba(220,220,220,1)",
+                    pointHoverBorderWidth: 4,
+                    pointRadius: 1,
+                    borderWidth: 5,
+                    pointHitRadius: 16,
+                }]
+        };
+        const spentDatesConfig = {
+            type: 'line',
+            data,
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        display: true,
+                        title: {
+                            display: true,
+                            text: 'UAH'
+                        },
+                        {#suggestedMin: -10,#}
+                        {#suggestedMax: 1000#}
+                    }
+                }
+            }
+        };
+        var spentDates = new Chart(
+            document.getElementById('spent_dates'),
+            spentDatesConfig
+        );
+        // TOP 10 spending
+        var biggestSpending  = {{ biggest_spending|safe }}
+        const biggestSpendingData = {
+            labels: biggestSpending.map(function (item) {
+                return item.description
+            }),
+            datasets: [
+                {
+                    'label': 'Spend',
+                    'backgroundColor': 'rgb(224,28,69)',
+                    'data': biggestSpending.map(function (item) {
+                        return (item.total_sum / 100) * -1
+                    })
+                }
+            ]
+
+        }
+        const biggestSpendingConfig = {
+            type: 'bar',
+            data: biggestSpendingData,
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    },
+                    title: {
+                        display: true,
+                        text: 'Biggest Spent'
+                    }
+                }
+            },
+        }
+
+
+
+        var biggestSpendingChart = new Chart(
+            document.getElementById('biggest_spending'),
+            biggestSpendingConfig
+        );
+    </script>
+{% endblock %}

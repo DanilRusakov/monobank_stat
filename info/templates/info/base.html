@@ -42,6 +42,8 @@
                         <i class="fas fa-user-alt"></i> {{ user.username }}
                     </a>
                     <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                        <a class="dropdown-item" href="{% url 'mono:index' %}">Mono Stat</a>
+                        <div class="dropdown-divider"></div>
                         <a class="dropdown-item" href="{% url 'crypto:index' %}">Crypto Stat</a>
                         <div class="dropdown-divider"></div>
                         <a class="dropdown-item" href="{% url 'account_settings' %}">Settings</a>
