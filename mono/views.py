@@ -20,13 +20,23 @@ class MonoView(LoginRequiredMixin, View):
         spent_dates = list(map(lambda item: {
             'date': str(item['date_only']),
             'total_sum': item['total_sum'],
-            'total_cashback': item['total_cashback'],
+            'total_cashback': item['total_cashback']
         }, list(spent_dates)))
         biggest_spending = mono_statements.filter(amount__lt=0)\
             .order_by('description').values('description').annotate(total_sum=Sum('amount')).order_by('total_sum')[:10]
 
+        balance = mono_statements.order_by('datetime').values('balance', 'datetime')
+        balance = list(map(lambda item: {
+            'date': str(item['datetime']),
+            'balance': item['balance'],
+        }, list(balance)))
+
         context = {
             'spent': json.dumps(spent_dates),
+            'balance': json.dumps(balance),
+            'transaction_count': mono_statements.count(),
+            'income_transaction_count': mono_statements.filter(amount__gt=0).count(),
+            'outcome_transaction_count': mono_statements.filter(amount__lt=0).count(),
             'biggest_spending': json.dumps(list(biggest_spending)),
         }
         return render(request, self.template_name, context)
