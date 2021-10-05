@@ -17,3 +17,14 @@ This application was created for displaying deep statistic usage monobank
 
 ![](https://github.com/DanilRusakov/monobank_stat/blob/main/mono/static/transaction_stat.png)
 ![](https://github.com/DanilRusakov/monobank_stat/blob/main/mono/static/spend.png)
+
+###How to start working with mono project
+1. Install all requirements
+2. Create superuser for django admin
+3. Add token into mono->mono users
+4. Run celery commands for parsing transactions from mono API 
+(each command in a separate terminal window, simultaneously)
+
+`celery -A monobank_stat worker -l INFO --pool=solo`
+
+`celery -A monobank_stat beat -l INFO`
